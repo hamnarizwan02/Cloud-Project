@@ -67,6 +67,8 @@ Frontend Deployment
   - Navigate to the frontend directory:
     cd frontend
 
+  - Set the backend API URL in index.html
+
   - Initialize the Elastic Beanstalk project:
     eb init
 
