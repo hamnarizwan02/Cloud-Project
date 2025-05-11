@@ -30,8 +30,7 @@ Frontend Deployment
   - Create and deploy the environment:
     eb create project45230603-env --single
 
-  - Once deployed, access the frontend:
-    http://project45230603.eba-xrqc3ty2.ap-southeast-2.elasticbeanstalk.com/
+  - Once deployed, access the frontend
 
 Backend Deployment
 
@@ -49,7 +48,6 @@ Backend Deployment
     docker-compose up -d
 
   - Assign an Elastic IP to ensure consistent backend access.
-    Backend URL: http://3.105.45.13:5000
 
 Database Setup
 
