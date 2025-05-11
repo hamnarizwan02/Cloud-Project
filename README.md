@@ -1,7 +1,7 @@
 # Overview
 This project demonstrates the deployment of a cloud-native full-stack web application using AWS infrastructure. It features:
 
-1. Frontend: HTML, CSS, JavaScript (static)
+1. Frontend: HTML, JavaScript (static)
 
 2. Backend: Flask (Python)
 
@@ -14,40 +14,6 @@ This project demonstrates the deployment of a cloud-native full-stack web applic
 6. Security: IAM roles, Security Groups, Key Pairs
 
 # Deployment Guide
-
-Frontend Deployment
-
-  - Install EB CLI and configure with aws configure using your IAM credentials.
-
-  - Navigate to the frontend directory:
-    cd frontend
-
-  - Initialize the Elastic Beanstalk project:
-    eb init
-
-  - Select the region, platform (Python), and application name.
-
-  - Create and deploy the environment:
-    eb create project45230603-env --single
-
-  - Once deployed, access the frontend
-
-Backend Deployment
-
-  - Create an EC2 instance inside a VPC.
-
-  - SSH into the instance using the generated key pair.
-
-  - Install Docker and Docker Compose:
-    sudo yum install docker
-    sudo service docker start
-
-  - SCP the Flask backend code and docker-compose.yml to the instance.
-
-  - Build and run your Docker container:
-    docker-compose up -d
-
-  - Assign an Elastic IP to ensure consistent backend access.
 
 Database Setup
 
@@ -76,3 +42,37 @@ Security & IAM
     - RDS: allow 5432 from EC2's SG
 
   - Generate and securely store Access Keys for programmatic access.
+
+Backend Deployment
+
+  - Create an EC2 instance inside a VPC.
+
+  - SSH into the instance using the generated key pair.
+
+  - Install Docker and Docker Compose:
+    sudo yum install docker
+    sudo service docker start
+
+  - Clone the repo and set the environment variables in .env
+    SQLALCHEMY_DATABASE_URI, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, S3_BUCKET_NAME, S3_ENDPOINT_URL, SECRET_KEY
+
+  - Build and run your Docker container, map the port 5000 which Flask will be running on
+
+  - Assign an Elastic IP to ensure consistent backend access.
+    
+Frontend Deployment
+
+  - Install EB CLI and configure with aws configure using your IAM credentials.
+
+  - Navigate to the frontend directory:
+    cd frontend
+
+  - Initialize the Elastic Beanstalk project:
+    eb init
+
+  - Select the region, platform (Python), and application name.
+
+  - Create and deploy the environment:
+    eb create project-env --single
+
+  - Once deployed, access the frontend
