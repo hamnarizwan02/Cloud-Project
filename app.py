@@ -20,10 +20,9 @@ CORS(app)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key')  # Default is 'your-secret-key' if not set in .env
 
 # Updated URI for PostgreSQL (from environment variable)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI', 'postgresql://postgres:postgres@localhost:5432/postgres')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI', '')
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = os.getenv('SQLALCHEMY_TRACK_MODIFICATIONS', False)
-app.config['UPLOAD_FOLDER'] = os.getenv('UPLOAD_FOLDER', './uploads')  # Default is './uploads' if not set in .env
 
 # Make sure upload folder exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -32,7 +31,7 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 db = SQLAlchemy(app)
 
 # User Model
-class User(db.Model):
+class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
@@ -47,7 +46,7 @@ class User(db.Model):
 class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(200), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
 # Helper: JWT token required decorator
 def token_required(f):
@@ -58,7 +57,7 @@ def token_required(f):
             return jsonify({'error': 'Token missing'}), 401
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
-            current_user = User.query.get(data['user_id'])
+            current_user = Users.query.get(data['user_id'])
             if not current_user:
                 raise Exception('User not found')
         except Exception as e:
@@ -73,10 +72,10 @@ def signup():
     if not data or not data.get('username') or not data.get('password'):
         return jsonify({'error': 'Username and password required'}), 400
 
-    if User.query.filter_by(username=data['username']).first():
+    if Users.query.filter_by(username=data['username']).first():
         return jsonify({'error': 'Username already exists'}), 409
 
-    user = User(username=data['username'])
+    user = Users(username=data['username'])
     user.set_password(data['password'])
     db.session.add(user)
     db.session.commit()
@@ -86,7 +85,7 @@ def signup():
 @app.route('/auth/login', methods=['POST'])
 def login():
     data = request.get_json()
-    user = User.query.filter_by(username=data.get('username')).first()
+    user = Users.query.filter_by(username=data.get('username')).first()
     if user and user.check_password(data.get('password')):
         token = jwt.encode({
             'user_id': user.id,
@@ -163,4 +162,5 @@ def upload_file(current_user):
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
+
